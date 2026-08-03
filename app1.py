@@ -3,7 +3,11 @@ import requests
 from pandas import DataFrame
 
 # ===== CONFIG =====
-API_KEY = st.secrets["API_KEY"]
+API_KEY = st.secrets.get("API_KEY")
+
+if not API_KEY:
+    st.error("API_KEY is missing in Streamlit Secrets.")
+    st.stop()
 st.title("🏋️‍♂️ Sports Diet Advisor")
 
 system_message = {
@@ -121,11 +125,11 @@ if prompt := st.chat_input("Ask your nutrition question..."):
                     "https://openrouter.ai/api/v1/chat/completions",
                     headers={
                         "Authorization": f"Bearer {API_KEY}",
-                        "HTTP-Referer": "http://localhost:8501",
+                        "HTTP-Referer": "https://evilsharmaji-sport-diet-advisor.streamlit.app",
                         "X-Title": "Sports Nutrition Advisor"
                     },
                     json={
-                        "model": "deepseek/deepseek-r1:free",
+                        "model": "google/gemma-3-27b-it:free",
                         "messages": api_messages,
                     },
                     timeout=30
@@ -169,17 +173,34 @@ if prompt := st.chat_input("Ask your nutrition question..."):
                     "table_data": df
                 })
                 
-            except requests.exceptions.RequestException:
-                st.error("Connection issue. Please try again.")
+            except requests.exceptions.HTTPError:
+                st.error(f"HTTP Error: {response.status_code}")
+
+                try:
+                    error_json = response.json()
+                    st.json(error_json)
+                except Exception:
+                    st.code(response.text)
+
                 st.session_state.messages.append({
                     "role": "assistant",
-                    "content": "Network error. Please check your connection.",
+                    "content": "The AI service returned an error.",
                     "table_data": None
                 })
+            except requests.exceptions.RequestException as e:
+                st.error(f"Request Error: {e}")
+
+                st.session_state.messages.append({
+                    "role": "assistant",
+                    "content": "Network connection failed.",
+                    "table_data": None
+                })
+
             except Exception as e:
-                st.error(f"Error: {str(e)}")
+                st.error(f"Unexpected Error: {e}")
+
                 st.session_state.messages.append({
                     "role": "assistant",
-                    "content": "Sorry, I couldn't process that. Please rephrase.",
+                    "content": "Unexpected error occurred.",
                     "table_data": None
-                })
+            })
