@@ -129,7 +129,7 @@ if prompt := st.chat_input("Ask your nutrition question..."):
                         "X-Title": "Sports Nutrition Advisor"
                     },
                     json={
-                        "model": "google/gemma-3-27b-it:free",
+                        "model": "openrouter/free",
                         "messages": api_messages,
                     },
                     timeout=30
