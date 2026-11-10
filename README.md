@@ -121,7 +121,7 @@ https://evilsharmaji-sport-diet-advisor.streamlit.app/
 
 **Priyanshu Sharma**  
 B.Tech CSE | AI Enthusiast    
-GitHub: [@yourusername](https://github.com/evilsharmaji)
+GitHub: (https://github.com/impriyanshusharma)
 
 ---
 
